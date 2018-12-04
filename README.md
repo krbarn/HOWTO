@@ -1,2 +1,2 @@
 # HOWTO
-A collection of HOW TO docs I've created over the years
+A collection of cheat sheets, how to guides and tips I've created and gathered over the years
