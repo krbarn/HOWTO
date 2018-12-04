@@ -1,0 +1,25 @@
+on the newer sun servers, try accessing the web console
+
+http://{servername}con.unx.sas.com
+
+with rscuser/standard password
+
+or 
+
+ssh -l root serverrsc
+
+
+to power off the server
+
+stop /SYS
+
+to power up server
+
+start /SYS
+
+either way, to access the console
+
+start /SP/console
+
+use #. to exit console back to the SP
+

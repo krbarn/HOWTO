@@ -1,0 +1,15 @@
+
+boot off install media
+
+have fibre zoned to match existing systems
+have network drops vlan's added to 1GB drops and 10 GB drops
+add system to vcenter
+
+add system to distributed switch
+have to create a HOSTNAMEvm.*.sas.com address for VM motion
+adding kernel port for vmotion
+
+
+configure and start ntp with timehost
+configure and start ssh
+change uservar to disable ssh warning

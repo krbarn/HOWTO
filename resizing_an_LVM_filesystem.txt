@@ -1,0 +1,11 @@
+lvremove /dev/mapper/volGroup01-LogVol08
+
+lvextend --size +60G /dev/VolGroup00/lvol0
+
+lvdisplay /dev/VolGroup00/lvol0
+
+resize2fs /dev/VolGroup00/lvol0 140G
+
+
+
+

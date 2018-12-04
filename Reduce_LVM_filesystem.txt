@@ -1,0 +1,73 @@
+First, check to see how much space is available
+
+[root@Linux01 ~]# pwd
+/TCPDumpLV
+[root@Linux01 TCPDumpLV]# df -kh .
+Filesystem
+	Size
+	Used 	Avail 	Use% 	Mounted on
+/dev/mapper/TCPDumpVolGRP-TCPDumpLV
+	6.1G
+	922M 	4.9G 	16% 	/TCPDumpLV
+
+2. Unmount the file system
+
+[root@Linux01 TCPDumpLV]# cd /
+[root@Linux01 /]# umount /TCPDumpLV
+
+3. Check the file system for errors
+
+[root@Linux01 /]# e2fsck -f /dev/mapper/TCPDumpVolGRP-TCPDumpLV
+e2fsck 1.39 (29-May-2006)
+Pass 1: Checking inodes, blocks, and sizes
+Pass 2: Checking directory structure
+Pass 3: Checking directory connectivity
+Pass 4: Checking reference counts
+Pass 5: Checking group summary information
+/dev/mapper/TCPDumpVolGRP-TCPDumpLV: 13/802816 files (7.7% non-contiguous), 261017/1605632 blocks
+
+4. Shrink the file system to 1.5GB
+
+[root@Linux01 /]# resize2fs /dev/mapper/TCPDumpVolGRP-TCPDumpLV 1500M
+resize2fs 1.39 (29-May-2006)
+Resizing the filesystem on /dev/mapper/TCPDumpVolGRP-TCPDumpLV to 384000 (4k) blocks.
+The filesystem on /dev/mapper/TCPDumpVolGRP-TCPDumpLV is now 384000 blocks long.
+
+5. Shrink the logical volume to 1.5GB
+
+[root@Linux01 /]# lvresize -L 1.5G /dev/TCPDumpVolGRP/TCPDumpLV
+WARNING: Reducing active logical volume to 1.50 GB
+THIS MAY DESTROY YOUR DATA (filesystem etc.)
+Do you really want to reduce TCPDumpLV? [y/n]: y
+Reducing logical volume TCPDumpLV to 1.50 GB
+Logical volume TCPDumpLV successfully resized
+
+6. Verify the new size of the logical volume
+
+[root@Linux01 ~]# lvdisplay /dev/TCPDumpVolGRP/TCPDumpLV
+--- Logical volume ---
+LV Name 	/dev/TCPDumpVolGRP/TCPDumpLV
+VG Name 	TCPDumpVolGRP
+LV UUID 	hYQs4t-YtY7-51hl-c4ps-4N6d-2W7h-IidcxF
+LV Write Access 	read/write
+LV Status 	available
+# open 	0
+LV Size 	1.50 GB
+Current LE 	48
+Segments 	1
+Allocation 	inherit
+Read ahead sectors 	auto
+- currently set to 	256
+Block device 	253:5
+
+7. Remount the file system and verify the new size
+
+[root@Linux01 /]# mount /dev/TCPDumpVolGRP/TCPDumpLV
+[root@Linux01 /]# cd /TCPDumpLV/
+[root@Linux01 TCPDumpLV]# df -kh .
+Filesystem
+	Size
+	Used 	Avail 	Use% 	Mounted on
+/dev/mapper/TCPDumpVolGRP-TCPDumpLV
+	1.5G
+	920M 	497M 	65% 	/TCPDumpLV

@@ -1,0 +1,11 @@
+Technical update from PERC: Created UFS filesystem on a ZFS zvol for AFS Cache:
+
+# zfs create -V 1g rpool/afscache
+# newfs /dev/zvol/rdsk/rpool/afscache
+# mkdir /local/vice/cache
+# mount /dev/zvol/dsk/rpool/afscache /local/vice/cache
+
+/etc/vfstab:
+
+/dev/zvol/dsk/rpool/afscache /dev/zvol/rdsk/rpool/afscache /local/vice/cache ufs 2 yes -
+

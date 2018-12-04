@@ -1,0 +1,15 @@
+
+Add virtual disk to the VM
+
+Rescan the scsi bus to find the new disk drives
+
+echo "- - -" > /sys/class/scsi_host/host0/scan
+fdisk -l
+tail -f /var/log/message
+
+Finally, Format the new disk disk
+
+fdisk /dev/sdc
+   * create the /dev/sdc1 partition as type 8E (Linux LVM)
+
+

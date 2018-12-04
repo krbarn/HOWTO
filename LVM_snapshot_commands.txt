@@ -1,0 +1,35 @@
+Once per hour, we use an LVM snapshot to backup a MySQL database. The
+procedure is:
+1. mysql server: flush tables with read lock; hold this lock until step 5
+2. sync
+3. lvcreate --extents N --snapshot --name dbsnapshotlv /dev/datavg/datalv
+4. mount -o ro /dev/datavg/dbsnapshotlv /mnt/snapshot
+5. mysql server: unlock tables
+6. create backup of /mnt/snapshot
+7. umount /mnt/snapshot && lvremove /dev/datavg/dbsnapshotlv
+
+
+# lvcreate -L500M -s -n dbbackup /dev/ops/databases
+lvcreate -- WARNING: the snapshot must be disabled if it gets full
+lvcreate -- INFO: using default snapshot chunk size of 64 KB for "/dev/ops/dbbackup"
+lvcreate -- doing automatic backup of "ops"
+lvcreate -- logical volume "/dev/ops/dbbackup" successfully created
+
+# mkdir /mnt/ops/dbbackup
+# mount /dev/ops/dbbackup /mnt/ops/dbbackup
+mount: block device /dev/ops/dbbackup is write-protected, mounting read-only
+
+# umount /mnt/ops/dbbackup
+# lvremove /dev/ops/dbbackup
+lvremove -- do you really want to remove "/dev/ops/dbbackup"? [y/n]: y
+lvremove -- doing automatic backup of volume group "ops"
+lvremove -- logical volume "/dev/ops/dbbackup" successfully removed
+
+Warning	Full snapshot are automatically disabled
+ 	
+
+If the snapshot logical volume becomes full it will be dropped (become unusable) 
+so it is vitally important to allocate enough space. The amount of space necessary 
+is dependent on the usage of the snapshot, so there is no set recipe to follow for this. 
+
+If the snapshot size equals the origin size, it will never overflow. 

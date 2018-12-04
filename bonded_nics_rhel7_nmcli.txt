@@ -1,0 +1,9 @@
+nmcli con add type bond con-name bond0 ifname bond0 mode active-backup
+nmcli con mod bond0 ipv4.addresses 192.168.40.1
+nmcli con mod bond0 ipv6.method ignore
+nmcli con mod bond0 ipv4.method manual
+nmcli con add type bond-slave ifname p4p1 master bond0
+nmcli con add type bond-slave ifname p6p1 master bond0
+nmcli con mod bond0 +bond.options mii=100
+nmcli con mod bond0 +ipv4.routes 192.168.40.0/24
+nmcli con up bond0

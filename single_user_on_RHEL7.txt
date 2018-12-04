@@ -1,0 +1,49 @@
+Read more: RHEL 7 / CentOS 7 : Single User Mode / Recovering / Reset Root Password @ All Linux User's Blog http://www.tejasbarot.com/2014/08/06/rhel-7-centos-7-recovering-root-password/#ixzz3p7GxjO9C
+Under Creative Commons License: Attribution Non-Commercial No Derivatives
+Follow us: @imtejasbarot on Twitter | AllLinuxUsersBlog on Facebook
+
+RHEL 7 / CentOS 7 : Single User Mode / Recovering / Reset Root Password
+Posted in August 6, 2014 ¬ 5:42 pmh.-Post metadata unknown-7 Comments »	
+Hello,
+Setting up the root password is a mandatory part of the Red Hat Enterprise Linux 7 / CentOS 7installation.
+If you forget or lose your password, it is possible to reset it. Now it is known as Rescue Mode / Emergency mode in CentOS / RHEL 7, Previously in RHEL / CentOS 5/6 It was “Single User Mode”.
+Note: In GRUB 2, resetting the password is no longer performed in single-user mode as it was in GRUB included in Red Hat Enterprise Linux 6. The root password is now required to operate in single-user mode as well as in emergency mode.
+systemd_recover_root_password
+
+systemd_recover_root_password
+Process: Resetting the Root Password
+
+1.    Please follow this procedure carefully, any mistake can make your system / Linux unstable, Perform this own your on risk.
+
+2.    Start the system and, on the GRUB 2 boot screen, press the e key for edit.
+
+3.    Add the following parameter at the end of the linux line, or linuxefi on UEFI systems 
+	(In case of  VMWare like KVM or VirtualBox use rb.break instead of init=/bin/sh):
+
+    init=/bin/sh
+
+    The Linux kernel will run the /bin/sh shell rather than the system init daemon. Therefore, some functions may be limited or missing.
+
+    Important
+    The rhgb and quiet parameters must be disables in order to enable system messages.
+
+4.    Press Ctrl+x to boot the system with the parameter.
+    The shell prompt appears.
+
+5.    The file system is mounted read-only. You will not be allowed to change the password if the file system is not writable.
+    To remount the file system as writable, run the 
+
+		mount -o remount, rw / command.
+
+6.    Run the passwd command and follow the instructions displayed on the command line to change the root password.
+    Note that if the system is not writable, the passwd tool fails with the following error:
+
+    Authentication token manipulation error
+
+    To make sure that SELinux context of the files that were modified is restored properly after boot, run
+
+    touch /.autorelabel
+
+7.    Run the exec /sbin/init command to resume the initialization and finish the system boot.
+    Running the exec command with another command specified replaces the shell and creates a new process; init in this case.
+    Alternatively, if you wish to reboot the system, run the exec /sbin/reboot command instead.

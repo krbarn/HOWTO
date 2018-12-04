@@ -1,0 +1,23 @@
+Assumptions
+	Under LAN tab, create the vlan - right click VLAN's 
+	Under Policies, right click LAN Connectivity Policies for the new VLAN
+
+
+
+Clone Service Template SSO_Linux to ${HOSTNAME}
+	-it will add a number at the end
+	- renamed Profile from ${HOSTNAME}1 to ${HOSTNAME}
+	- you can tell the blade assigned under properties Associated Server: /sys/chassis-1/blade-X
+
+
+Network tab - assign LAN Connectivity Policy
+
+Boot Order - assign boot-policy-SAN_Boot_A
+
+Get WWPN assigned to Blade, updated MIDAS request for two luns
+	- 120GB OS lun
+	- 1.2 TB Data lun
+
+Once LUn's are assigned, you should see the lun if you should see the storage on the boot order tab
+
+

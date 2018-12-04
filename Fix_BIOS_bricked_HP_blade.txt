@@ -1,0 +1,11 @@
+1. Power-off and remove the server from the enclosure 
+2. Remove the lid 
+3. Turn ON bits 1, 5 and 6 of the maintenance switch 
+4. Replace the lid 
+5. Reinstall the server 
+6. Power on and wait until you hear the beep - should take a few seconds.
+7. Power-off and remove the server from the enclosure 
+8. Remove the lid 
+9. Turn OFF bits 1, 5 and 6 of the maintenance switch 
+10. Replace the lid 
+11. Reinstall and power on the server

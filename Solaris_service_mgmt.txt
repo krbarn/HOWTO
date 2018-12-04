@@ -1,0 +1,11 @@
+to view services running
+
+svcs -a
+
+svcs -l pattern (i.e. svcs -l vasd)
+
+to restart
+
+sudo /usr/sbin/svcadm restart pattern 
+
+sudo /usr/sbin/svcadm restart vasd

@@ -1,0 +1,11 @@
+hponcfg all << EOF
+<RIBCL VERSION="2.0">
+  <LOGIN USER_LOGIN="Administrator" PASSWORD="boguspassword">
+  <USER_INFO MODE="write">
+    <MOD_USER USER_LOGIN="Administrator">
+      <PASSWORD value="sas12345"/>
+    </MOD_USER>
+  </USER_INFO>
+  </LOGIN>
+</RIBCL>
+EOF

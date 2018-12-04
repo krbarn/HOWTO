@@ -1,0 +1,6 @@
+To limit the entire system to a certain number of CPUs, 
+
+add "maxcpus=X" 
+
+to your kernel line in your grub.conf (without the quotes) and replace "X" with the number 
+of CPUs you want the kernel to see.

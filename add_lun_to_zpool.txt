@@ -1,0 +1,19 @@
+
+get a copy of ~dabeat/CLARiiON/emcgrab/inq.sol64 
+
+sudo ~dabeat/bin/inq.sol64 -no_dots -showvol -btl
+
+this will show the mapping between the EMC Lun ID and the solaris raw device
+
+
+build script using ~san_storage/solaris_templates
+
+run pv.ksh to verify the disks aren't formated
+
+run format.ksh to format the disks
+
+run pv.ksh to verify the disk are formatted
+
+run z.ksh to add disks to zpool
+
+

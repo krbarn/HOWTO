@@ -1,0 +1,49 @@
+Step 1: Gain root access to your server using SSH.
+
+Step 2: Check whether the quota package is install or otherwise please install it before continue.
+rpm -qa|grep quota
+
+Step 3: Modify /etc/fstab file
+
+Partitions that you have not yet enabled quota normally look something like:
+
+/dev/hda5 /home ext3 default 1 2
+
+To enable user quota support for that partition, simply add in usrquota next to default such as below:
+
+/dev/hda5 /home ext3 default,usrquota 1 2
+
+To enable group quota, just add grpquota.
+To enable both user and group quotas, add in both usrquota,grpquota.
+
+Step 4: Reboot or Not to Reboot.
+
+Normally I won't reboot, you can try this command on the partition that you have modified or added in quota support:
+mount -o remount /home
+
+Step 5: Quota Check
+
+/sbin/quotacheck -cguvamf -F vfsv0
+
+Step 6: Rerun Quota Check for old version
+
+/sbin/quotacheck -cguvamf -F vfsold
+
+Step 7: Turn on Quotas
+
+/sbin/quotaon -a
+
+To see the report of quotas, issue this command:
+
+repquota -a
+
+To set a user quota, issue the following command:
+setquota -u USERNAME SOFTQUOTA HARDQUOTA SOFTFILELIMIT HARDFILELIMIT -a
+Where:
+USERNAME is the user
+SOFTQUOTA in kilobytes
+HARDQUOTA in kilobytes
+SOFTFILELIMIT set it to 0 normally
+HARDFILELIMIT set it to 0 also
+
+mount -o remount / ; /sbin/quotacheck -cguvamf -F vfsv0 ; /sbin/quotacheck -cguvamf -F vfsold ; /sbin/quotaon -a ; repquota -a

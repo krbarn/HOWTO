@@ -1,0 +1,25 @@
+To change the Emulex HBA lpfc driver options (specifically, the per lun queue length) do the following
+
+To show the current value
+
+
+cat /sys/class/scsi_host/host0/lpfc_lun_queue_depth
+
+cp -p /etc/modprobe.conf /etc/modprobe.conf.sav
+edit /etc/modprobe.conf
+add the line
+
+options lpfc lpfc_lun_queue_depth=64
+
+save 
+
+
+cd /boot
+cp initrd-$(uname -r).img initrd-$(uname -r).before_lpfc_chg.ddmmmyy.img
+mkinitrd -v initrd-$(uname -r).img $(uname -r)
+
+Reboot
+
+cat /sys/class/scsi_host/host0/lpfc_lun_queue_depth
+
+to verify the change

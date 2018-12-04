@@ -1,0 +1,10 @@
+You can use rsync to make a copy of one directory to another
+
+rsync -av --delete src_directory/ target_directory/
+
+
+To test the copy first, run
+
+rsync --dry-run -av --delete src_directory/ target_directory/
+
+$ rsync -avz /root/temp/ thegeekstuff@192.168.200.10:/home/thegeekstuff/temp/

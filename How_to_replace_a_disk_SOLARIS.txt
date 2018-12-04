@@ -1,0 +1,25 @@
+cfgadm -c unconfigure c1::dsk/c1t4d0
+
+bottom of third column going left to right
+
+* look for blue lights
+* replace disk
+
+cfgadm -c configure c1::dsk/c1t4d0
+
+or
+
+If the cfgadm command doesn’t work, you may want to try the following
+
+With  the bad drive removed, do the following
+devfsadm –C
+devfsadm –c disk
+iostat –En
+
+
+Replace the failed disk with the original name
+
+zpool replace localdiskpool c1t4d0
+
+zpool status localdiskspool
+

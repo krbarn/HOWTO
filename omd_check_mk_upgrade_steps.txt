@@ -1,0 +1,6 @@
+install omd-1.30.*
+yum install libdbi
+omd stop site
+omd update site
+omd start site
+

@@ -1,0 +1,98 @@
+The configuration of VLANs under FC/RHEL/CentOS is something that I always end up looking in the “ifup” script and 
+experimenting around with. This is made worse by there being two different conventions that can be used for the 
+interface naming. Here’s how I set up VLANs. 
+
+First of all, the base interface needs to be configured. Usually, it’s already got at least a stub file, 
+which needs to be modified to have the following elements:
+
+DEVICE=eth0                   #  use real interface name here
+BOOTPROTO=static
+HWADDR=AA:17:31:9C:8D:BC      #  use real MAC address here
+ONBOOT=no
+TYPE=Ethernet
+IPADDR=0.0.0.0
+NETMASK=255.255.255.0
+
+In this example, I am configuring the device “eth0? (the file /etc/sysconfig/network-scripts/ifcfg-eth0?, 
+with the MAC address of “AA:17:31:9C:8D:BC”. You will need to plug in your system’s values for these two lines, 
+and the rest should be left the same.
+
+The other method for naming is “eth0.X” which has the benefit that you don’t have to specify the interface name 
+in the ifcfg script. Also, since VLAN interfaces are named based on the physical interface, you can have different 
+VLAN name-spaces. In other words, eth0.5 may be a different network than eth1.5. However, VLAN IDs have a name-space 
+of up to 4096, so unless you’re dealing with multiple networks outside of your control, you can (and should) probably 
+use a non-overlapping VLAN name-space.
+
+The draw-back is that /etc/sysctl.conf interprets the “.” in the name as meaning a “/” in the /proc heirarchy, 
+which breaks things like “net.ipv4.conf.eth0.5.forwarding = 1?.
+
+To configure “eth0.5?, write a “/etc/sysconfig/network-scripts/ifcfg-eth0.5? file with:
+
+VLAN=yes
+DEVICE=eth0.5
+BOOTPROTO=static
+ONBOOT=yes
+TYPE=Ethernet
+IPADDR=10.254.5.254
+NETMASK=255.255.255.0
+
+This is the same as for “vlan5? above, but the “PHYSDEV” and “VLAN_NAME_TYPE” lines may be omitted.
+
+NEXT ARTICLE
+
+The only way I could get a single NIC (unbonded) working, was to create a VLAN-tagged configuration. 
+So, I had eth0 with no configuration details really, and then eth0.123 (where 123 is the VLAN tag) which did have details like 
+IP address, netmask, etc. That configuration worked fine. So, I figured the same sort of configuration should be leveraged with 
+the bonded interface. My question is, do I create a VLAN-tagged bond configuration with regular ethX configurations, or 
+VLAN-tagged ethX configurations bonded to a non-VLAN-tagged bond configuration.
+
+Here it how to do it:
+
+/etc/sysconfig/network-scripts/eth0
+
+DEVICE=eth0
+HWADDR=some MAC address
+TYPE=Ethernet
+UUID=some device ID
+ONBOOT=yes
+NM_CONTROLLED=no
+BOOTPROTO=none
+MASTER=bond0
+SLAVE=yes
+USERCTL=no
+
+/etc/sysconfig/network-scripts/eth1
+
+DEVICE=eth1
+HWADDR=some MAC address
+TYPE=Ethernet
+UUID=some device ID
+ONBOOT=yes
+NM_CONTROLLED=no
+BOOTPROTO=none
+MASTER=bond0
+SLAVE=yes
+USERCTL=no
+
+/etc/sysconfig/network-scripts/bond0
+
+DEVICE=bond0
+ONBOOT=yes
+BOOTPROTO=none
+TYPE=Ethernet
+USERCTL=no
+NM_CONTROLLED=no
+BONDING_OPTS="mode4 miimon=100"
+
+/etc/sysconfig/network-scripts/bond0.123
+
+DEVICE=bond0.123
+IPADDR=10.x.y.50
+NETMASK=255.255.254.0
+GATEWAY=10.x.y.1
+ONBOOT=yes
+BOOTPROTO=none
+USERCTL=no
+NM_CONTROLLED=no
+TYPE=Ethernet
+VLAN=yes

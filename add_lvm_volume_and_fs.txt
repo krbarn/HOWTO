@@ -1,0 +1,4 @@
+lvcreate VolGroup01 -n LogVol00 --size 12345G
+mkfs.ext4 -b 4096 -j /dev/mapper/VolGroup01-LogVol00
+mkdir /mountpoint
+mount /dev/mapper/VolGroup01-LogVol00 /mountpoint

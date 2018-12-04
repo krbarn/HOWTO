@@ -1,0 +1,23 @@
+If you have a failed disk in DL XXX series servers do the following
+
+First, gather information for HP so they will send you a new disk
+
+1.	Get on the webconsole, find the disk inventory (if available, depends on ilo version) and take a screen shot of it
+2.	Logon to the server and run 
+
+# /usr/sbin/hpacucli
+set target ctrl slot=0
+pd all show
+
+and get the results.
+
+3.	Run hpaducli –f /tmp/hostname.zip  to generate a disk wear report  to be emailed to HP
+
+Now that you have the supporting documentation for HP, swap out the disk with a spare
+
+4.	Open up a case using HP’s website
+5.	Attach the snapshots and zip file to the case via email
+6.	Have hp just deliver you a space next day, tell them no need to send out a repair man
+
+
+That’s about it

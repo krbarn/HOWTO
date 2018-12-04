@@ -1,0 +1,33 @@
+    To format a Linux device that is 2TB or larger, a GPT label
+must be written using the parted program.  There is an example
+of aligning a LUN on a 1MB boundary in the FLARE 30 Best Practices
+guide on page 24:
+
+\\tappan\CLARiiON\docs\White\EMC_CLARiiON_R30_Best_Prac.pdf
+
+The required commands should look like this (may be a little different
+depending on the Linux version):
+
+# parted /dev/mapper/mpath14
+GNU Parted 1.8.1
+Using /dev/mapper/mpath14
+Welcome to GNU Parted! Type 'help' to view a list of commands.
+(parted) mklabel gpt
+(parted) p
+Disk geometry for /dev/mapper/mpath14: 0.000-3381248.000 megabytes
+Disk label type: gpt
+Number  Start  End     Size    File system  Name  Flags
+(parted) mkpart primary 64K 3381248
+(parted) p
+Model: Linux device-mapper (dm)
+Disk /dev/mapper/mpath14: 3302GB
+Sector size (logical/physical): 512B/512B
+Partition Table: gpt
+
+Number  Start  End     Size    File system  Name  Flags
+1      256kB  3302GB  3302GB               1          
+
+(parted) q
+
+
+Ignore warning about performance alignment

@@ -1,0 +1,13 @@
+If a ZFS mountpoint contains data, ZFS will not mount a dataset on that mountpoint.
+
+The system will stop in single user mode.   Networking is not enabled in single user mode, 
+so the server will be unavailable, except from the console.
+
+If you can access the console, run "zfs mount -a" to test for ZFS mount errors
+
+The prevent this problem from happening in the future MIS must test to see if the ZFS dataset is 
+mounted before writing to the mountpoint
+
+zpool status will give you the status of ZFS
+
+

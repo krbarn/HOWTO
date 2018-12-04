@@ -1,0 +1,9 @@
+$ scsi_id -g -u -s /block/sda  # Will need this output for /etc/multipath.conf
+SServeRA_Linux__________3E462BA5
+$ cp multipath.conf multipath.orig
+$ vi /etc/multipath.conf, edit the wwid in blacklist
+
+$ multipath -v2 -d  # Dry run of the configuration
+$ multipath -ll     # Show the current configuration
+$ chkconfig --add multipathd
+$ chkconfig multipathd on

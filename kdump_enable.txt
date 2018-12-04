@@ -1,0 +1,53 @@
+To configure kdump to write core files to the /var/crash directory on local disk, you will first need to install the kexec-tools package:
+
+$ yum install kexec-tools
+
+Once the package is installed, you will need to add a crashkernel line to the kernel boot arguments.
+This line contains the amount of memory to reserve for the crashkernel, and should look similar to the following 
+(you may need to increase the amount of memory depending on the platform you are using):
+
+title CentOS (2.6.18-128.el5)
+        root (hd0,0)
+        kernel /boot/vmlinuz-2.6.18-128.el5 ro root=LABEL=/ console=ttyS0 \
+                   crashkernel=128M@16M
+        initrd /boot/initrd-2.6.18-128.el5.img
+
+
+
+To allow you to get a core file if a box hangs, you can enable sysrq magic key sequences by setting “kernel.sysrq” to 1 in /etc/sysctl.conf 
+(you can also use the sysctl “-w” option to enable this feature on an active host):
+
+kernel.sysrq = 1
+
+Once these settings are in place, you can enable the kdump service with the chkconfig and service commands:
+
+$ chkconfig kdump on
+
+$ service kdump start
+
+If you want to verify that kdump is working, you can type “alt + sysrq + c” on the console, or echo a “c” character to the sysrq-trigger proc entry:
+
+$ echo “c” > /proc/sysrq-trigger
+
+SysRq : Trigger a crashdump
+Linux version 2.6.18-128.el5 (mockbuild@builder10.centos.org)
+….
+
+This will force a panic, which should result in a core file being generated in the /var/crash directory:
+
+$ pwd
+/var/crash/2009-07-05-18:31
+
+$ ls -la
+total 317240
+drwxr-xr-x 2 root root 4096 Jul 5 18:32 .
+drwxr-xr-x 3 root root 4096 Jul 5 18:31 ..
+-r——– 1 root root 944203448 Jul 5 18:32 vmcore
+
+If you are like me and prefer to be notified when a box panics, you can configure your log monitoring solution to look for the string 
+“kdump: saved a vmcore” in /var/log/messages:
+
+Jul 5 18:32:08 kvmnode1 kdump: saved a vmcore to /var/crash/2009-07-05-18:31
+
+Kdump is pretty sweet, and it’s definitely one of those technologies that every RAS savy engineer should be 
+configuring on each server he or she deploys.

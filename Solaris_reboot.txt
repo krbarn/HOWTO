@@ -1,0 +1,25 @@
+Reboot
+If you are trying to reboot the system as opposed to turning it off, you could use:
+
+    shutdown -y -i6 -g0
+
+Or:
+
+    sync;sync;init 6
+
+Or even:
+
+    reboot
+
+Shutdown
+You have more than one command option that you can use. The best command is this, executed as root:
+
+    shutdown -y -i5 -g0
+
+This will immediately shut the system down. You can also use the older command that still works:
+
+    sync;sync;init 5
+
+You can even use:
+
+    poweroff

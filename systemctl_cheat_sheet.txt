@@ -1,0 +1,62 @@
+chkconfig vs systemctl cheat sheet
+
+List processes
+
+chkconfig:
+
+# chkconfig --list
+
+systemd:
+
+# systemctl list-units
+
+Enable a service
+
+chkconfig:
+
+# chkconfig <servicename> on
+
+systemd:
+
+# systemctl enable <servicename>.service
+
+Disable a service
+
+chkconfig:
+
+# chkconfig <servicename> off
+
+systemd:
+
+# systemctl disable <servicename>.service
+
+Start a service
+
+chkconfig:
+
+# service <servicename> start
+
+systemd:
+
+# systemctl start <servicename>.service
+
+Stop a service
+
+chkconfig:
+
+# service <servicename> stop
+
+systemd:
+
+# systemctl stop <servicename>.service
+
+Check the status of a service
+
+chkconfig:
+
+# service <servicename> status
+
+systemd:
+
+# systemctl status <servicename>.service
+

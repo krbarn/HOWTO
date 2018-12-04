@@ -1,0 +1,45 @@
+--AIX--
+Shutdown
+shutdown        ( 60 sec)
+shutdown now (shutdown  60 sec)
+shutdown -F     (force shutdown)
+
+Reboot
+shutdown -r     (reboot and flush cache to disk)
+shutdown -Fr     (force reboot)
+reboot         (Not flush cache to disk)
+
+--HP--
+Shutdown
+shutdown -hy 0 (Force shutdown  0 sec)
+init 0
+
+Reboot
+shutdown -ry 0 (Force restart  0 sec)
+reboot
+
+--Linux--
+Shutdown
+shutdown -h now (Force shutdown  0 sec)
+init 0
+halt
+poweroff
+
+Reboot
+shutdown -r now (Force restart  0 sec)
+reboot
+init 6
+
+--Sun--
+Shutdown
+shutdown -i5 -y -g0
+sync;sync;init 5
+poweroff
+
+Reboot
+shutdown -i6 -y -g0
+sync;sync;init 6
+reboot
+
+Credit: Knowledge Management IT for you: Unix shutdown/restart command (AIX,HP-UX,Linux,Sun)
+Under Creative Commons License: Attribution

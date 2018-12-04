@@ -1,0 +1,53 @@
+To setup a new Git Repository
+
+mkdir REPO_NAME
+cd REPO_NAME
+git init
+touch README
+git add README
+git commit -m 'first commit'
+git config --global user.name	"Ken Barnhouse"
+git config --global user.email	"Ken.Barnhouse@sas.com"
+
+generate ssh keys to connect between project and gitlabint
+
+ssh-keygen -t rsa -C "ken.barnhouse@sas.com"
+cat ~/.ssh/id_rsa.pub
+
+paste it into gitlabint.unx.sas.com
+
+
+To connect with a remote Repo on gitlabint.unx.sas.com
+
+Record a matching REPO on gitlabint.unx.sas.com
+
+cd REPO_NAME
+git remote add ALIAS git@gitlabint.unx.sas.com:ken.barnhouse/intops-monitoring.git
+git push -u ALIAS master
+
+Command Git command
+
+git status	# to see if the repo is in sync with the working directory
+git add FILENAME	# to add an updated file to the be committed
+git commit -m "messages" FILENAME	# to commit a change to the repo with a message
+	or
+git commit FILENAME	#  it will open up a text editor for longer comments
+
+git checkout -- FILENAME	# will discard changes to FILE in the working directory to the
+			# the last commit changes of FILE
+git diff	# will show all differences between working directory and last 
+		# commit for all files under the project
+git diff FILENAME # will show differences in FILENAME from current working directory to
+			# last commit
+
+git clone /path/to/repo	# create a working copy of a local repo
+git clone username@host:/path/to/repo	# create a working copy of a remote repo
+
+git add FILENAME	# you can propose changes with
+git add *		# for all files in a project
+
+git push REMOTE BRANCH	#
+
+git log		# to get the log of changes in the project
+
+git tag 1.0.0 1b2e1ffee	# to create a software release tag

@@ -1,0 +1,21 @@
+In this example /data is 20GB and mounted on /dev/VolGroup00/lvol0
+
+umount /data
+
+e2fsck -f /dev/VOlGroup00/lvol0
+
+resize2fs /dev/VolGroup00/lvol0 10G
+
+lvreduce -L 10G /dev/VolGroup00/lvol0
+
+e2fsck -f /dev/VolGroup00/lvol0
+
+mount /data
+
+or maybe
+
+ext2online /dev/VolGroup00/lvol0 10G
+
+lvreduce -L 10G /dev/VolGroup00/lvol0 
+
+

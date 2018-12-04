@@ -1,0 +1,24 @@
+1. Mount the DVD
+mount /dev/cdrom /mnt
+
+2. setup the repository
+
+# ls /etc/yum.repos.d
+redhat.repo  rhel-debuginfo.repo  rhel-source.repo
+
+To get yum use the DVD as a repository, add a file ‘rhel-dvd.repo’ in 
+/etc/yum.repos.d with the following content:
+
+[dvd]
+name=Red Hat Enterprise Linux Installation DVD
+baseurl=file:///mnt/Server
+enabled=0
+
+3. Use the repository
+
+# yum install --nogpgcheck --enablerepo=dvd packagename
+
+
+4. Use can also search the repo to find which rpm provides a file
+
+yum provides --enablerepo=dvd */uuencode

@@ -1,0 +1,17 @@
+To add another swap space on a system using an LVM volume, do the following
+
+lvcreate VolGroup00 -n swap0 -L 16G
+
+mkswap /dev/VolGroup00/swap0
+
+Add the following entry to the /etc/fstab file:
+
+/dev/VolGroup00/swap0   swap     swap    defaults     0 0
+
+cat /proc/swaps
+free
+
+swapon -va
+
+cat /proc/swaps
+free

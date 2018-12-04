@@ -1,0 +1,4 @@
+virt-install --name testvm2 --hvm --ram 2048 --file /var/lib/libvirt/iamges/testvm2.img --file-size 20 \
+--network network:default --vnc --location=nfs://tappan/vol/vol3/redhat/redhat-xxxxxxxx
+
+where file-size is in GB

@@ -1,0 +1,23 @@
+* ls -l /dev/sd?
+
+note which hard disks are already attached to this server
+
+* add hard disk to the VM
+
+* the new disk will hotplug into the system, so running "ls -l /dev/sd?" will show the new disk
+
+* fdisk the new disk to create the full partition device /dev/sdX1, where X is the drive letter
+
+* pvcreate /dev/sdX1 # to make the disk available to LVM
+
+* vgextend /dev/VolGRoupXX /dev/sdX1
+
+* determine the logical volume the file system is mounted on 
+   - df /mountpoint
+   - grep mountpoint /etc/fstab
+
+
+* lvextend --size +NNNG /dev/VolGroup0X/LogVol0X  # where NNN is the number of GB to extend the file system by and X is a number
+
+* resize2fs /dev/VolGRoup0X/LogVol0X # where VolGroup0X LogVol0X are from the df command
+

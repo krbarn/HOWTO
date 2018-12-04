@@ -1,0 +1,315 @@
+
+Don’t Panic, It’s just a kernel panic!
+
+17 Mar 2011 at 01:45
+
+Geez
+
+Infrastructure
+
+crash dump hang kernel panic troubleshooting vmcore
+
+One of the main young sysadmin fear is to being asked by management to find out the root cause of a system crash or hang!
+
+When realizing that there are no error messages in the logs and no obvious pattern related to high load, high I/O activity or memory exhaustion… it can be hard to come up with a relevant root cause (especially when it happens randomly once a year).
+
+Experienced sysadmins and technical support engineers know the deal though, there are ways to be proactive about this and get relevant clues about what happened during a crash/hang “most of the time”.
+
+One common answer to this issue is to use kexec/kdump allowing the system to dump memory contents(vmcore) after kernel panics.
+
+In the case of a hang, you would need to press a specific set of “magic keys” to generate the vmcore.
+
+***
+Set up Kexec/Kdump (RHEL5,RHEL6/CentOS5,CentOS6)
+
+¦ Install Software
+Install the RPMs “kexec-tools”, “crash”, “kernel-debuginfo” and “kernel-debuginfo-common”.
+
+¦ Kernel Options to specify
+Add the “crashkernel” option to your kernel line in grub.conf
+Just “crashkernel=128M” for RHEL6, but “crashkernel=128M@16M” for RHEL5
+Ex in RHEL5:
+kernel /boot/vmlinuz-2.6.17-1.2519.4.21.el5 ro root=LABEL=/ rhgb quiet crashkernel=128M@16M
+
+¦ Kdump configuration
+Specify the vmcore location in /etc/kdump.conf
+
+Ex for dumping to a device:
+raw /var/crash
+Ex for dumping to a file:
+ext3 /dev/sdb2 (mount and generate the vmcore in /var/crash)
+Ex for dumping on the network with NFS:
+net nfs.server.com:/remote/export/vmcores
+Ex for dumping on the network with SSH:
+net user@remote.server.com + propagate with “/etc/init.d/kdump propagate”
+
+    /!\ Make sure that the space available at the specified vmcore location match the size of the physical memory if you have a doubt. There are vmcore compression options available but the best way to determine the size of the generated vmcore is to test.. by crashing your server (see SysRq).
+
+¦ Page selection and compression
+Discarding ‘useless’ memory pages and compressing the rest can be done with the core_collector command specified in the kdump.conf.
+
+The core collector “makedumpfile” allows you to see the type of pages:
+zero pages = 1
+cache pages = 2
+cache private = 4
+user pages = 8
+free pages = 16
+
+-d 31 is used to throw out pages, -c is used for compression.
+
+
+# throw out zero pages (containing no data)
+# core_collector makedumpfile -d 1
+# throw out all trival pages
+# core_collector makedumpfile -d 31
+# compress all pages, but leave them all
+# core_collector makedumpfile -c
+# throw out trival pages and compress (recommended)
+core_collector makedumpfile -d 31 -c
+
+A restart of the kdump service is necessary after modifying the configuration file:
+
+
+/etc/init.d/kdump restart
+
+¦ Setup the system to use kdump with systems lockups (NMI) and OOM (Out Of Memory) scenarios
+- Append kernel option “nmi_watchdog=1” in grub.conf
+– Add following kernel parameters in sysctl:
+- kernel.unknown_nmi_panic=1
+- kernel.panic_on_unrecovered_nmi=1
+- vm.panic_on_oom=1
+
+¦ Test by crashing the system intentionally
+Enable SysRq if not done yet:
+
+
+echo 1 > /proc/sys/kernel/sysrq
+
+Then, crash the system:
+
+
+echo “c” > /proc/sysrq-trigger
+
+Magic SysRq Keys, Kesako? (meaning.. Watizit?)
+
+Those are your best friends when your system hangs (no mouse, no keyboard, frozen screen… I’m sure you’ve been there once or twice).
+Basically, it’s a set of key combination that you hit in that situation to generate a memory dump.
+
+In a nutshell, this is how to enable them:
+
+
+# echo 1 > /proc/sys/kernel/sysrq
+
+Or in sysctl.conf:
+
+
+kernel.sysrq=1
+
+How to trigger a SysRq event during a hang:
+Alt+PrintScreen+(commandKey)
+
+Or intentionally:
+
+
+echo “commandKey” > /proc/sysrq-trigger
+
+CommandKey List:
+m – memory allocation
+t – thread state
+p – CPU registers and flags
+c – CRASH the system
+s – sync all mounted filesystems
+u – remount all filesystems read-only
+b – reboot the machine
+o – power off the machine
+Particular Cases
+
+¦ Generate a vmcore to analyse soft lockups.
+
+When your system is subject to soft lockups:
+
+
+BUG: soft lockup - CPU#3 stuck for 11s! [frob:2342]
+
+Make sure that kdump is correctly setup and then:
+
+
+# echo 1 > /proc/sys/kernel/softlockup_panic
+
+You should have a vmcore generated after that.
+
+¦ Vmcore in Virtual Machines (KVM based)
+
+When one of your guest OS is hanging, you can simply generate the dump with the following command:
+
+
+virsh dump domain-name /tmp/dumpfile
+
+This is when the VM hangs, for kernel panic, install kdump on the VM as you would do for a physical machine.
+Vmcore Analysis
+
+Ok, we’ve seen how to generate a vmcore from a kernel panic or a hung system situation.
+But you’re not ready yet to provide the root cause to your management, and god knows they want to know why the server “you” are administrating is crashing in production.
+The analysis of the vmcore is the answer.
+
+A basic analysis presented here can help you finding out what process crashed the server – that can make management be quiet for a while.
+A deeper analysis which can be done by kernel aficionados is more focused on finding out the piece of code from the program executing the process which crashed the system.
+
+What’s needed to analyse the vmcore:
+- the “crash” utility
+- the “kernel-debuginfo” and “kernel-debuginfo-common” packages for your kernel version
+- a vmcore (can be handy)
+
+How to use it:
+
+
+# crash /usr/lib/debug/lib/modules/2.6.18-194.17.4.el5/vmlinux /var/crash/127.0.0.1-2011-03-16-12\:23\:06/vmcore
+
+Option available:
+crash> sys
+crash> bt -a
+crash> mod
+crash> log
+crash> sys
+Quick Example
+
+Partition /var/crash description:
+
+
+# df -h /var/crash/
+Filesystem            Size  Used Avail Use% Mounted on
+/dev/mapper/system-varcrash
+372M   11M  343M   3% /var/crash
+
+Necessary utilities (do not forget kernel-debuginfo):
+
+
+# rpm -q kexec-tools crash
+kexec-tools-1.102pre-96.el5_5.4
+crash-4.1.2-4.el5_5.1
+
+Kdump.conf configuration (/var/crash specified and pages selection/compression):
+
+
+#cat /etc/kdump.conf
+
+#kernel crash dump conf
+# Only dump the pages we need
+core_collector makedumpfile -d 31 -c
+
+# Save all vmcores to / (relative to the specified LV below)
+path /
+
+## Mount the /var/crash LV
+ext3 /dev/system/varcrash
+
+Add kernel crashkernel option:
+
+
+# grep crash /boot/grub/grub.conf
+kernel /vmlinuz-2.6.18-194.17.4.el5 ro root=/dev/system/root rhgb quiet crashkernel=128M@16M
+
+Checking that SysRq is enabled:
+
+
+# cat /proc/sys/kernel/sysrq
+1
+
+Let’s provoke an intentional crash:
+
+
+# echo "c" > /proc/sysrq-trigger
+
+After Rebooting the crashed system, a small vmcore is available:
+
+
+# ls -shl /var/crash/127.0.0.1-2011-03-16-12:23:06
+total 11M
+11M -rw------- 1 root root 11M Mar 16 12:23 vmcore
+
+VMcore Analysis with “crash”:
+
+
+crash /usr/lib/debug/lib/modules/2.6.18-194.17.4.el5/vmlinux /var/crash/127.0.0.1-2011-03-16-12\:23\:06/vmcore
+
+KERNEL: /usr/lib/debug/lib/modules/2.6.18-194.17.4.el5/vmlinux
+DUMPFILE: /var/crash/127.0.0.1-2011-03-16-12:23:06/vmcore  [PARTIAL DUMP]
+CPUS: 2
+DATE: Wed Mar 16 12:23:01 2011
+UPTIME: 00:09:23
+LOAD AVERAGE: 0.00, 0.02, 0.00
+TASKS: 132
+NODENAME: sandbox3
+RELEASE: 2.6.18-194.17.4.el5
+VERSION: #1 SMP Wed Oct 20 13:03:08 EDT 2010
+MACHINE: x86_64  (2926 Mhz)
+MEMORY: 2 GB
+PANIC: "SysRq : Trigger a crashdump"
+PID: 2303
+COMMAND: "bash"
+TASK: ffff81007fa160c0  [THREAD_INFO: ffff81006f5e8000]
+CPU: 0
+STATE: TASK_RUNNING (SYSRQ)
+
+¦ Once in the crash environment, you can explore different system information related to the crash.
+
+The logs (message dump)
+
+
+crash > logs
+....
+hdc: drive_cmd: error=0x04 { AbortedCommand }
+ide: failed opcode was: 0xec
+SysRq : Trigger a crashdump
+
+The System data
+
+
+crash > sys
+KERNEL: /usr/lib/debug/lib/modules/2.6.18-194.17.4.el5/vmlinux
+DUMPFILE: /var/crash/127.0.0.1-2011-03-16-12:23:06/vmcore  [PARTIAL DUMP]
+CPUS: 2
+DATE: Wed Mar 16 12:23:01 2011
+UPTIME: 00:09:23
+LOAD AVERAGE: 0.00, 0.02, 0.00
+TASKS: 132
+NODENAME: sandbox3
+RELEASE: 2.6.18-194.17.4.el5
+VERSION: #1 SMP Wed Oct 20 13:03:08 EDT 2010
+MACHINE: x86_64  (2926 Mhz)
+MEMORY: 2 GB
+PANIC: "SysRq : Trigger a crashdump"
+
+The kernel stack backtrace
+
+
+crash> bt
+PID: 2303   TASK: ffff81007fa160c0  CPU: 0   COMMAND: "bash"
+ #0 [ffff81006f5e9df0] crash_kexec at ffffffff800ad9ce
+ #1 [ffff81006f5e9eb0] sysrq_handle_crashdump at ffffffff801b4dcd
+ #2 [ffff81006f5e9ec0] __handle_sysrq at ffffffff801b4bc0
+ #3 [ffff81006f5e9f00] write_sysrq_trigger at ffffffff80109683
+ #4 [ffff81006f5e9f10] vfs_write at ffffffff80016aa6
+ #5 [ffff81006f5e9f40] sys_write at ffffffff80017373
+ #6 [ffff81006f5e9f80] tracesys at ffffffff8005d28d (via system_call)
+    RIP: 0000003edccc62c0  RSP: 00007fffa24ddcf8  RFLAGS: 00000246
+    RAX: ffffffffffffffda  RBX: ffffffff8005d28d  RCX: ffffffffffffffff
+    RDX: 0000000000000002  RSI: 00002b53c7ed1000  RDI: 0000000000000001
+    RBP: 0000000000000002   R8: 00000000ffffffff   R9: 00002b53c46c2dd0
+    R10: 0000000000000013  R11: 0000000000000246  R12: 0000003edcf51780
+    R13: 00002b53c7ed1000  R14: 0000000000000002  R15: 0000000000000000
+    ORIG_RAX: 0000000000000001  CS: 0033  SS: 002b
+
+The modules information:
+
+
+MODULE       NAME               SIZE  OBJECT FILE
+ffffffff88008000  ehci_hcd          66125  (not loaded)  [CONFIG_KALLSYMS]
+ffffffff88017980  ohci_hcd          56309  (not loaded)  [CONFIG_KALLSYMS]
+ffffffff88026e00  uhci_hcd          57433  (not loaded)  [CONFIG_KALLSYMS]
+ffffffff8803ff80  jbd               94769  (not loaded)  [CONFIG_KALLSYMS]
+ffffffff8806b180  ext3             168913  (not loaded)  [CONFIG_KALLSYMS]
+ffffffff88076780  virtio            39365  (not loaded)  [CONFIG_KALLSYMS]
+
+This is it for now, the “bt” and “sys” crash commands should be enough to find out about the guilty process.
+Troubleshooting the code via the backtrace syscalls and correcting a potential bug is another challenge implying coder skills and a broad kernel internals knowledge.

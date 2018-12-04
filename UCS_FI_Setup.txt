@@ -1,0 +1,116 @@
+Before configuring the FIs, you will need to come up with the following information.
+
+ System Name
+
+    NOTE: This is the hostname for the cluster.  Each FI will also automatically be assigned a name based on the system name
+    with an A or B appended depending on which FI you are working with.
+
+ Password for the admin account
+
+ 3 Static IP addresses will need to be obtained for the FIs.
+
+   1 will be for each FI and the 3rd will be the virtual IP for the cluster.
+ 
+ Subnet mask for management network
+
+ Default Gateway
+
+ Domain name
+
+Using a laptop, connect the serial port of the laptop to the serial port on the primary FI. This would be the fabric interconnect 
+that you designate as fabric A.
+
+After you power on the FI, you should be prompted after a few minutes to enter some information.
+
+ Example:
+
+          ---- Basic System Configuration Dialog ----
+
+ This setup utility will guide you through the basic configuration of
+ the system. Only minimal configuration including IP connectivity to
+ the Fabric interconnect and its clustering mode is performed through these steps.
+
+ Type Ctrl-C at any time to abort configuration and reboot system.
+ To back track or make modifications to already entered values,
+ complete input till end of section and answer no when prompted
+ to apply configuration.
+
+
+ Enter the configuration method. (console/gui) ? console
+
+ Enter the setup mode; setup newly or restore from backup. (setup/restore) ? setup
+
+ You have chosen to setup a new Fabric interconnect. Continue? (y/n): y
+
+ Enforce strong password? (y/n) [y]: n
+ 
+ Enter the password for "admin":
+ Confirm the password for "admin":
+ 
+ Is this Fabric interconnect part of a cluster(select 'no' for standalone)? (yes/no) [n]: yes
+ 
+ Enter the switch fabric (A/B) []: A
+
+ Enter the system name:  ucsasp01
+
+ Physical Switch Mgmt0 IPv4 address : 10.10.2.154
+
+ Physical Switch Mgmt0 IPv4 netmask : 255.255.0.0
+
+ IPv4 address of the default gateway : 10.10.0.1
+
+ Cluster IPv4 address : 10.10.2.153
+
+ Configure the DNS Server IPv4 address? (yes/no) [n]: y
+
+ DNS IPv4 address : 10.16.149.6
+
+ Configure the default domain name? (yes/no) [n]: y
+
+   Default domain name : unx.sas.com
+
+ Following configurations will be applied:
+
+   Switch Fabric=A
+   System Name=ucsasp01
+   Enforced Strong Password=no
+   Physical Switch Mgmt0 IP Address=10.10.2.154
+   Physical Switch Mgmt0 IP Netmask=255.255.0.0
+   Default Gateway=10.10.0.1
+   DNS Server=10.16.149.6
+   Domain Name=unx.sas.com
+
+   Cluster Enabled=yes
+   Cluster IP Address=10.10.2.153
+   NOTE: Cluster IP will be configured only after both Fabric Interconnects are initialized
+
+ Apply and save the configuration (select 'no' if you want to re-enter)? (yes/no): yes
+ 
+
+ Wait for a couple of minutes and move to the next step.
+ This could take 10-15 minutes!!
+
+Now connect the console connection to the secondary FI on fabric B and power on
+
+ Enter the configuration method. (console/gui) ? console
+
+ Installer has detected the presence of a peer Fabric interconnect. This Fabric interconnect will be added to the cluster.
+ Continue (y/n) ? y
+
+ Enter the admin password of the peer Fabric interconnect:
+   Connecting to peer Fabric interconnect... done
+   Retrieving config from peer Fabric interconnect... done
+   Peer Fabric interconnect Mgmt0 IP Address: 10.10.2.154
+   Peer Fabric interconnect Mgmt0 IP Netmask: 255.255.0.0
+   Cluster IP address          : 10.10.2.153
+
+ Physical Switch Mgmt0 IPv4 address : 10.10.2.155                    # NOTE: This can take a very long time up to 15 minutes if 
+                                                                     #       the existing has been configured for a while and in use.  
+
+ Apply and save the configuration (select 'no' if you want to re-enter)? (yes/no): yes
+ Applying configuration. Please wait.
+
+ Configuration file - Ok
+
+At this point, the UCS manager should be operational. From a web browser, you should be able to connect to the 
+cluster hostname ( system name ) and go through the rest of the setup. 
